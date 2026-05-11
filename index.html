@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0d0d0d">
+<title>Coach Isaac</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{--bg:#0d0d0d;--card:#181818;--card2:#202020;--border:#2a2a2a;--text:#f0f0f0;--sub:#666;--accent:#e85d04;--accent-bg:#1c0f00}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;padding-bottom:40px;min-height:100vh}
+
+/* HEADER */
+.hdr{position:fixed;top:0;left:0;right:0;z-index:99;background:rgba(13,13,13,.97);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.hdr-top{display:flex;justify-content:space-between;align-items:center;padding:14px 16px 10px}
+.hdr-title{font-size:17px;font-weight:800;letter-spacing:-.4px}
+.hdr-date{font-size:12px;color:var(--sub)}
+.tabs{display:flex;padding:0 4px}
+.tab{flex:1;text-align:center;padding:10px 4px;font-size:13px;font-weight:600;color:var(--sub);border-bottom:2px solid transparent;cursor:pointer;position:relative;transition:color .15s,border-color .15s;user-select:none}
+.tab.active{color:var(--text);border-bottom-color:var(--accent)}
+.tab .dot{display:none;position:absolute;top:8px;right:calc(50% - 24px);width:5px;height:5px;border-radius:50%;background:var(--accent)}
+.tab.today .dot{display:block}
+
+/* CONTENT */
+.content{padding-top:90px}
+.panel{display:none;padding:0 14px 24px}
+.panel.active{display:block}
+
+/* SESSION HEADER */
+.sess-hdr{margin:14px 0 14px;padding:14px 16px;background:var(--card);border-radius:12px;border-left:3px solid var(--accent)}
+.sess-label{font-size:16px;font-weight:800}
+.sess-sub{font-size:12px;color:var(--sub);margin-top:3px;line-height:1.4}
+
+/* EXERCISE CARD */
+.ex-card{background:var(--card);border-radius:12px;margin-bottom:10px;border:1px solid var(--border);overflow:hidden;transition:border-color .2s}
+.ex-card.complete{border-color:#2a4a1a}
+.ex-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;padding:13px 14px 8px}
+.ex-name{font-size:14px;font-weight:700;line-height:1.3;flex:1}
+.ex-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0}
+.badge{border-radius:6px;padding:3px 8px;font-size:11px;font-weight:800}
+.badge-sets{background:var(--card2);color:var(--accent)}
+.badge-ss{background:#160c30;color:#a78bfa}
+.ex-note{padding:0 14px 8px;font-size:12px;color:var(--sub);line-height:1.4}
+
+/* OPTIONS */
+.options{padding:0 10px 10px;display:flex;flex-direction:column;gap:5px}
+.opt{display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:8px;background:var(--card2);cursor:pointer;border:1.5px solid transparent;transition:all .15s;user-select:none}
+.opt.sel{border-color:var(--accent);background:var(--accent-bg)}
+.opt-n{width:20px;height:20px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:var(--sub);flex-shrink:0;transition:all .15s}
+.opt.sel .opt-n{background:var(--accent);color:#fff}
+.opt-txt{font-size:13px;line-height:1.3;flex:1}
+.vid-btn{display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:6px;background:rgba(255,0,0,.12);color:#ff4444;font-size:11px;font-weight:800;text-decoration:none;flex-shrink:0;transition:all .15s}
+.vid-btn:active{background:rgba(255,0,0,.28)}
+
+/* SET TRACKER */
+.set-row{display:flex;align-items:center;gap:10px;padding:8px 14px 13px;border-top:1px solid var(--border)}
+.set-lbl{font-size:11px;color:var(--sub);flex-shrink:0}
+.set-dots{display:flex;gap:7px}
+.sdot{width:32px;height:32px;border-radius:50%;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--sub);cursor:pointer;transition:all .15s;user-select:none}
+.sdot.done{background:var(--accent);border-color:var(--accent);color:#fff}
+
+/* FINISHER */
+.finisher{background:var(--card);border-radius:12px;padding:14px 16px;margin:6px 0 14px;border:1px solid var(--border);display:flex;align-items:center;gap:12px}
+.fin-icon{font-size:28px}
+.fin-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:var(--sub);margin-bottom:3px}
+.fin-txt{font-size:14px;font-weight:700}
+
+/* RESET */
+.reset-btn{width:100%;padding:13px;background:transparent;border:1px solid var(--border);border-radius:10px;color:var(--sub);font-size:13px;font-weight:600;cursor:pointer;transition:all .15s}
+.reset-btn:active{background:var(--card);color:var(--text)}
+
+/* WEEK VIEW */
+.week-wrap{padding-top:14px}
+.week-card{background:var(--card);border-radius:12px;padding:13px 14px;margin-bottom:8px;border:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.week-day-lbl{font-size:11px;font-weight:800;text-transform:uppercase;color:var(--sub);width:32px;flex-shrink:0;line-height:1.3;text-align:center}
+.week-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.week-info{flex:1;min-width:0}
+.week-name{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.week-sub{font-size:11px;color:var(--sub);margin-top:2px}
+.week-badge{font-size:10px;font-weight:800;padding:3px 8px;border-radius:6px;flex-shrink:0}
+
+/* REST CARD */
+.rest-card{background:var(--card);border-radius:14px;padding:48px 20px;text-align:center;margin-top:20px}
+.rest-ico{font-size:52px;margin-bottom:14px}
+.rest-title{font-size:18px;font-weight:800;margin-bottom:8px}
+.rest-txt{font-size:14px;color:var(--sub);line-height:1.6}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="hdr-top">
+    <span class="hdr-title">Coach Isaac 🏋️</span>
+    <span class="hdr-date" id="hdr-date"></span>
+  </div>
+  <div class="tabs">
+    <div class="tab" data-tab="semana" onclick="switchTab('semana')">Semana<span class="dot"></span></div>
+    <div class="tab" data-tab="segunda" onclick="switchTab('segunda')">Seg<span class="dot"></span></div>
+    <div class="tab" data-tab="quarta" onclick="switchTab('quarta')">Qua<span class="dot"></span></div>
+    <div class="tab" data-tab="sexta" onclick="switchTab('sexta')">Sex<span class="dot"></span></div>
+  </div>
+</header>
+
+<div class="content">
+  <div class="panel" id="panel-semana"></div>
+  <div class="panel" id="panel-segunda"></div>
+  <div class="panel" id="panel-quarta"></div>
+  <div class="panel" id="panel-sexta"></div>
+</div>
+
+<script>
+const DATA = {
+  segunda: {
+    label: 'Sessão A — Lower Pesado',
+    sub: 'Glúteos · Posteriores · Quadríceps · Core',
+    accent: '#e85d04',
+    accentBg: '#1c0f00',
+    exercises: [
+      { id:'s1', name:'Compound Principal', sr:'4 × 8-10', note:'Glúteos + Quadríceps', sets:4,
+        opts:['Agachamento Livre (barra)','Leg Press 45°','Goblet Squat (halter)'] },
+      { id:'s2', name:'Cadeia Posterior', sr:'3 × 10-12', note:'Posteriores + Glúteos · usar strap no Terra', sets:3,
+        opts:['Terra Romeno c/ barra','Stiff c/ halteres','Cadeira Flexora'] },
+      { id:'s3', name:'Glúteo Isolação', sr:'3 × 12-15', note:'Extensão de quadril', sets:3,
+        opts:['Hiperextensão 45° (banco romano)','Kettlebell Swing','Swing c/ Halter'] },
+      { id:'s4', name:'Unilateral', sr:'3 × 10-12 cada', note:'Equilíbrio + Glúteo', sets:3,
+        opts:['Bulgarian Split Squat c/ halteres','Passada c/ halteres','Step Up c/ halter'] },
+      { id:'s5', name:'Glúteo Médio', sr:'3 × 15-20', note:'Abdução de quadril', sets:3,
+        opts:['Abdutora (máquina)','Agachamento Sumô c/ halter','Passada lateral c/ halter'] },
+      { id:'s6', name:'Core', sr:'3 ×', note:'', sets:3,
+        opts:['Prancha Frontal — 45s','Dead Bug — 10 cada lado','Roda Abdominal — 8-10 reps'] }
+    ],
+    fin: { icon:'🚴', txt:'Bike zona 2 — 15 a 20 min' }
+  },
+  quarta: {
+    label: 'Sessão B — Upper Moderado',
+    sub: 'Pós Muay Thai · Push + Pull Superset · Core',
+    accent: '#7209b7',
+    accentBg: '#0f0520',
+    exercises: [
+      { id:'q1', name:'1A — Peito (Empurra Horizontal)', sr:'3 × 10-12', note:'Superset com 1B · sem descanso entre A e B', sets:3, ss:'SS1',
+        opts:['Supino c/ halteres','Chest Press (máquina)','Flexão de braço'] },
+      { id:'q2', name:'1B — Costas (Puxa Vertical)', sr:'3 × 10-12', note:'Superset com 1A · descanso apenas após o B', sets:3, ss:'SS1',
+        opts:['Barra Fixa','Polia Alta (pegada neutra)','Remada Cavalinho (máquina)'] },
+      { id:'q3', name:'2A — Ombro (Empurra Vertical)', sr:'3 × 10-12', note:'Superset com 2B', sets:3, ss:'SS2',
+        opts:['Desenvolvimento c/ halteres','Desenvolvimento (máquina)','Arnold Press'] },
+      { id:'q4', name:'2B — Costas (Puxa Horizontal)', sr:'3 × 10-12', note:'Superset com 2A', sets:3, ss:'SS2',
+        opts:['Remada c/ halteres (pegada neutra)','Remada Assento (máquina)','Remada Unilateral c/ halter'] },
+      { id:'q5', name:'Tríceps', sr:'3 × 12-15', note:'', sets:3,
+        opts:['Tríceps Testa c/ halter','Tríceps Polia (corda)','Mergulho entre bancos'] },
+      { id:'q6', name:'Core', sr:'3 ×', note:'', sets:3,
+        opts:['Prancha Lateral — 30s cada','Russian Twist c/ disco','Elevação de Pernas suspenso'] }
+    ],
+    fin: { icon:'🏃', txt:'Esteira ou bike — 15 min (livre)' }
+  },
+  sexta: {
+    label: 'Sessão C — Upper Pull + Glúteo',
+    sub: 'Costas · Bíceps · Glúteo Acessório · Core',
+    accent: '#0077b6',
+    accentBg: '#00152a',
+    exercises: [
+      { id:'x1', name:'Pull Compound Principal', sr:'4 × 8-10', note:'Costas em ênfase · usar strap no pulso direito', sets:4,
+        opts:['Barra Fixa','Remada Curvada c/ barra (strap)','Remada Cavalinho (máquina)'] },
+      { id:'x2', name:'Pull Acessório', sr:'3 × 12', note:'Costas', sets:3,
+        opts:['Polia Alta fechada (pegada neutra)','Remada Unilateral c/ halter','Pull-over c/ halter'] },
+      { id:'x3', name:'Bíceps', sr:'3 × 12 cada', note:'Pegada neutra — protege o pulso direito', sets:3,
+        opts:['Rosca Martelo (alternada)','Rosca Concentrada','Rosca Direta c/ halteres'] },
+      { id:'x4', name:'Glúteo Acessório', sr:'3 × 15-20', note:'Volume baixo — preservar longão de sábado', sets:3,
+        opts:['Hip Thrust c/ elástico','Coice Polia Baixa (unilateral)','Abdutora (carga leve)'] },
+      { id:'x5', name:'Core', sr:'3 ×', note:'', sets:3,
+        opts:['Prancha c/ extensão de braço alternada','Mountain Climber lento — 20 cada','Hollow Body Hold — 30s'] }
+    ],
+    fin: { icon:'🚴', txt:'Bike zona 2 — 15 min (preservar pernas pro longão)' }
+  }
+};
+
+const WEEK = [
+  { key:'segunda', lbl:'SEG', name:'Sessão A — Lower Pesado',  sub:'Glúteos · Posteriores · Core', color:'#e85d04', gym:true },
+  { key:'terca',   lbl:'TER', name:'Corrida — Meia Maratona',  sub:'Plano próprio', color:'#22c55e', gym:false },
+  { key:'quarta',  lbl:'QUA', name:'Sessão B — Upper Moderado', sub:'Pós Muay Thai · Push + Pull · extra: Muay Thai 7:30h', color:'#7209b7', gym:true },
+  { key:'quinta',  lbl:'QUI', name:'Corrida — Meia Maratona',  sub:'Plano próprio', color:'#22c55e', gym:false },
+  { key:'sexta',   lbl:'SEX', name:'Sessão C — Upper Pull + Glúteo', sub:'Costas · Bíceps · Core', color:'#0077b6', gym:true },
+  { key:'sabado',  lbl:'SÁB', name:'Longão — Meia Maratona',   sub:'Foco em pace, hidratação e nutrição', color:'#f59e0b', gym:false },
+  { key:'domingo', lbl:'DOM', name:'Recuperação Ativa',          sub:'Mobilidade · caminhada · descanso', color:'#444', gym:false }
+];
+
+const DAY_KEYS = ['domingo','segunda','terca','quarta','quinta','sexta','sabado'];
+const GYM_MAP  = { 1:'segunda', 3:'quarta', 5:'sexta' };
+
+const today   = new Date();
+const todayDI = today.getDay();
+const todayKey = GYM_MAP[todayDI];
+const dateStr  = today.toISOString().split('T')[0];
+
+// Header date
+document.getElementById('hdr-date').textContent =
+  today.toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'short' });
+
+// Storage helpers — fallback em memória se localStorage estiver bloqueado (WebView)
+const _mem = {};
+function getOpt(id) {
+  try { return localStorage.getItem('opt_' + id); }
+  catch(e) { return Object.prototype.hasOwnProperty.call(_mem,'o_'+id) ? _mem['o_'+id] : null; }
+}
+function saveOpt(id, v) {
+  try { localStorage.setItem('opt_' + id, v); } catch(e) { _mem['o_'+id] = v; }
+}
+function getSets(id) {
+  try { return parseInt(localStorage.getItem('s_'+id+'_'+dateStr) || '0'); }
+  catch(e) { return Object.prototype.hasOwnProperty.call(_mem,'s_'+id) ? parseInt(_mem['s_'+id]) : 0; }
+}
+function saveSets(id, v) {
+  try { localStorage.setItem('s_'+id+'_'+dateStr, v); } catch(e) { _mem['s_'+id] = String(v); }
+}
+
+function ytUrl(name) {
+  const q = name.replace(/\(.*?\)/g,'').trim() + ' execução musculação';
+  return 'https://www.youtube.com/results?search_query=' + encodeURIComponent(q);
+}
+
+function renderExCard(ex) {
+  const sel   = getOpt(ex.id);
+  const done  = getSets(ex.id);
+  const full  = done >= ex.sets;
+
+  const optsH = ex.opts.map((o,i) => `
+    <div class="opt ${sel==i?'sel':''}" onclick="pickOpt('${ex.id}',${i},this)">
+      <div class="opt-n">${i+1}</div>
+      <div class="opt-txt">${o}</div>
+      <a class="vid-btn" href="${ytUrl(o)}" target="_blank" onclick="event.stopPropagation()">▶</a>
+    </div>`).join('');
+
+  const dotsH = Array.from({length:ex.sets},(_,i) => `
+    <div class="sdot ${i<done?'done':''}" onclick="tapSet('${ex.id}',${i},${ex.sets},this)">
+      ${i<done?'✓':i+1}
+    </div>`).join('');
+
+  return `
+  <div class="ex-card ${full?'complete':''}" id="card-${ex.id}">
+    <div class="ex-top">
+      <div class="ex-name">${ex.name}</div>
+      <div class="ex-right">
+        <span class="badge badge-sets">${ex.sr}</span>
+        ${ex.ss?`<span class="badge badge-ss">${ex.ss}</span>`:''}
+      </div>
+    </div>
+    ${ex.note?`<div class="ex-note">${ex.note}</div>`:''}
+    <div class="options">${optsH}</div>
+    <div class="set-row">
+      <span class="set-lbl">Séries</span>
+      <div class="set-dots">${dotsH}</div>
+    </div>
+  </div>`;
+}
+
+function pickOpt(id, idx, el) {
+  saveOpt(id, idx);
+  document.getElementById('card-'+id).querySelectorAll('.opt')
+    .forEach((o,i) => o.classList.toggle('sel', i===idx));
+}
+
+function tapSet(id, idx, total, el) {
+  const cur = getSets(id);
+  const nv  = idx < cur ? idx : idx + 1;
+  saveSets(id, nv);
+  const card = document.getElementById('card-'+id);
+  card.querySelectorAll('.sdot').forEach((d,i) => {
+    const ok = i < nv;
+    d.classList.toggle('done', ok);
+    d.textContent = ok ? '✓' : i+1;
+  });
+  card.classList.toggle('complete', nv >= total);
+}
+
+function renderDay(key) {
+  const d = DATA[key];
+  const p = document.getElementById('panel-'+key);
+  p.style.setProperty('--accent', d.accent);
+  p.style.setProperty('--accent-bg', d.accentBg);
+
+  let h = `<div class="sess-hdr"><div class="sess-label">${d.label}</div><div class="sess-sub">${d.sub}</div></div>`;
+  h += d.exercises.map(renderExCard).join('');
+  h += `
+    <div class="finisher">
+      <div class="fin-icon">${d.fin.icon}</div>
+      <div><div class="fin-lbl">Finisher</div><div class="fin-txt">${d.fin.txt}</div></div>
+    </div>
+    <button class="reset-btn" onclick="resetDay('${key}')">Resetar progresso do dia</button>`;
+  p.innerHTML = h;
+}
+
+function resetDay(key) {
+  DATA[key].exercises.forEach(ex => { saveSets(ex.id, 0); _mem['s_'+ex.id] = 0; });
+  renderDay(key);
+}
+
+function renderWeek() {
+  const todayName = DAY_KEYS[todayDI];
+  let h = '<div class="week-wrap">';
+  WEEK.forEach(d => {
+    const isToday = d.key === todayName;
+    h += `
+    <div class="week-card" style="${isToday?'border-color:'+d.color:''}">
+      <div class="week-day-lbl" style="${isToday?'color:'+d.color:''}">${d.lbl}${isToday?'<br><span style="font-size:9px">HOJE</span>':''}</div>
+      <div class="week-dot" style="background:${d.color}"></div>
+      <div class="week-info">
+        <div class="week-name">${d.name}</div>
+        <div class="week-sub">${d.sub}</div>
+      </div>
+      ${d.gym?`<span class="week-badge" style="background:${d.color}20;color:${d.color}">GYM</span>`:''}
+    </div>`;
+  });
+  h += '</div>';
+  document.getElementById('panel-semana').innerHTML = h;
+}
+
+function switchTab(key) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab===key));
+  document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id==='panel-'+key));
+}
+
+// Init
+try {
+  renderWeek();
+  renderDay('segunda');
+  renderDay('quarta');
+  renderDay('sexta');
+  if (todayKey) document.querySelector('[data-tab="'+todayKey+'"]').classList.add('today');
+  switchTab(todayKey || 'semana');
+} catch(e) {
+  document.querySelector('.content').innerHTML =
+    '<div style="padding:24px;color:#ff6b6b;font-size:14px;line-height:1.6">'
+    + '<strong>Erro ao carregar:</strong><br>' + e.message
+    + '<br><br>Tente abrir o arquivo no Safari (não pelo WhatsApp).</div>';
+}
+</script>
+</body>
+</html>
