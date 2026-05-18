@@ -292,8 +292,37 @@ function renderDay(key) {
 }
 
 function resetDay(key) {
-  DATA[key].exercises.forEach(ex => { saveSets(ex.id, 0); _mem['s_'+ex.id] = 0; });
+  DATA[key].exercises.forEach(function(ex) { saveSets(ex.id, 0); _mem['s_'+ex.id] = 0; });
   renderDay(key);
+  var btn = document.querySelector('#panel-'+key+' .reset-btn');
+  if (btn) {
+    btn.textContent = 'Resetado ✓';
+    btn.style.color = '#22c55e';
+    btn.style.borderColor = '#22c55e';
+    setTimeout(function() {
+      btn.textContent = 'Resetar progresso do dia';
+      btn.style.color = '';
+      btn.style.borderColor = '';
+    }, 1500);
+  }
+}
+
+function resetAll() {
+  ['segunda','quarta','sexta'].forEach(function(key) {
+    DATA[key].exercises.forEach(function(ex) { saveSets(ex.id, 0); _mem['s_'+ex.id] = 0; });
+    renderDay(key);
+  });
+  var btn = document.getElementById('btn-reset-all');
+  if (btn) {
+    btn.textContent = 'Semana resetada ✓';
+    btn.style.color = '#22c55e';
+    btn.style.borderColor = '#22c55e';
+    setTimeout(function() {
+      btn.textContent = 'Resetar semana inteira';
+      btn.style.color = '';
+      btn.style.borderColor = '';
+    }, 1500);
+  }
 }
 
 function renderWeek() {
@@ -313,6 +342,7 @@ function renderWeek() {
     </div>`;
   });
   h += '</div>';
+  h += '<button id="btn-reset-all" class="reset-btn" onclick="resetAll()" style="margin-top:16px;width:100%">Resetar semana inteira</button>';
   document.getElementById('panel-semana').innerHTML = h;
 }
 
